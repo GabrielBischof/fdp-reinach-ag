@@ -59,10 +59,10 @@ function Home() {
           </a>
         </div>
       </div>
-
-      <div className="bg-white mt-20 mb-32 py-6 w-full max-w-[1200px] mx-auto rounded-lg shadow-lg">
+    {/*
+     <div className="bg-white mt-20 mb-32 py-6 w-full max-w-[1200px] mx-auto rounded-lg shadow-lg">
         <Slideshow />
-      </div>
+     </div> */} 
       <EventSchedule />
       <Blog />
     </div>

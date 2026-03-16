@@ -20,7 +20,7 @@ export default function Slideshow() {
   if (!images.length) return <p className="text-center">Lade Bilder...</p>;
 
   return (
-    <section className="relative w-full h-48 sm:h-[350px] md:h-[500px] overflow-hidden rounded-lg bg-white my-8 mb-16 pb-4">
+    <section className="relative w-full aspect-[4/3] sm:aspect-[16/9] lg:aspect-[21/9] overflow-hidden rounded-lg bg-white my-8 mb-16">
       {/* Bilder */}
       {images.map((img, i) => {
         const baseUrl = img.asset.url.split("?")[0];
@@ -30,7 +30,7 @@ export default function Slideshow() {
             src={`${baseUrl}?w=1600&auto=format`}
             alt={`Bild ${i + 1}`}
             loading="lazy"
-            className={`absolute top-0 left-0 w-full h-full object-contain object-center transition-opacity duration-1000 ${
+            className={`absolute top-0 left-0 w-full h-full object-cover object-center transition-opacity duration-1000 ${
               i === index ? "opacity-100" : "opacity-0"
             }`}
             srcSet={`
@@ -45,7 +45,7 @@ export default function Slideshow() {
       })}
 
       {/* Navigationspunkte */}
-      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
+      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2 z-10">
         {images.map((_, i) => (
           <div
             key={i}

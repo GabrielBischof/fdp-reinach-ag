@@ -9,7 +9,7 @@ const Blog = () => {
     const [selectedPost, setSelectedPost] = useState(null);
     
     // Helper function to generate Sanity image URLs with proper cropping
-    const getSanityImageUrl = (imageAsset, width, height, mainImage = null) => {
+    const getSanityImageUrl = (imageAsset, width, height = null, mainImage = null) => {
         if (!imageAsset || !imageAsset._id) return '';
         
         // Convert Sanity image ID to proper format
@@ -22,8 +22,8 @@ const Blog = () => {
         
         let url = `https://cdn.sanity.io/images/j5dg682b/production/${imageId}`;
         
-        // Add crop rectangle if crop data is available
-        if (mainImage && mainImage.crop) {
+        // Add crop rectangle only when a fixed output height is requested
+        if (height && mainImage && mainImage.crop) {
             const crop = mainImage.crop;
             // Extract original dimensions from image ID
             const dimensionMatch = imageAsset._id.match(/-(\d+)x(\d+)-/);
@@ -34,16 +34,20 @@ const Blog = () => {
                 // Calculate crop rectangle
                 const left = Math.round(crop.left * originalWidth);
                 const top = Math.round(crop.top * originalHeight);
-                const right = Math.round((1 - crop.right) * originalWidth);
-                const bottom = Math.round((1 - crop.bottom) * originalHeight);
+                const widthRect = Math.round((1 - crop.left - crop.right) * originalWidth);
+                const heightRect = Math.round((1 - crop.top - crop.bottom) * originalHeight);
                 
-                url += `?rect=${left},${top},${right},${bottom}`;
+                url += `?rect=${left},${top},${widthRect},${heightRect}`;
             }
         }
         
-        // Add sizing parameters
+        // Add sizing parameters without forced crop to keep full image visible
         const separator = url.includes('?') ? '&' : '?';
-        url += `${separator}w=${width}&h=${height}&fit=crop&auto=format`;
+        url += `${separator}w=${width}&auto=format`;
+        if (height) {
+            url += `&h=${height}`;
+        }
+        url += '&fit=max';
         
         return url;
     };
@@ -94,12 +98,12 @@ const Blog = () => {
     Modal.setAppElement("#root");
 
     return (
-        <section className="w-full bg-gradient-to-br from-[#e6f4ff] via-white to-[#cce6ff] py-10 px-2 sm:px-4 mt-10 rounded-2xl shadow-2xl max-w-6xl mx-auto mb-24">
+        <section className="w-full bg-gradient-to-br from-[#e6f4ff] via-white to-[#cce6ff] py-10 px-3 sm:px-6 lg:px-10 mt-10 rounded-2xl shadow-2xl mb-24">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-center text-[#005baa] mb-8 sm:mb-12 drop-shadow-lg tracking-tight">Blog & Aktuelles</h2>
             {posts.length === 0 ? (
                 <p className="text-center text-base sm:text-lg text-[#005baa]">Keine Beiträge gefunden.</p>
             ) : (
-                <div className="grid gap-6 sm:gap-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3 items-stretch">
                     {posts.map((post) => {
                         const slug = post.slug?.current || post.title;
                         const isExpanded = expanded[slug];
@@ -109,19 +113,21 @@ const Blog = () => {
                         return (
                             <div
                                 key={slug}
-                                className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 flex flex-col items-center border border-[#e0eaff] overflow-hidden"
+                                className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 flex flex-col items-center border border-[#e0eaff] overflow-hidden h-full"
                             >
                                 {post.mainImage && post.mainImage.asset && (
-                                    <img
-                                        src={getSanityImageUrl(post.mainImage.asset, 400, 300, post.mainImage)}
-                                        alt={post.mainImage.alt || post.alt || post.title}
-                                        className="w-full h-40 sm:h-48 object-cover rounded-t-2xl mb-2 sm:mb-4"
-                                        loading="lazy"
-                                        onError={(e) => {
-                                            console.error('Cropped image failed, trying direct URL:', e.target.src);
-                                            e.target.src = post.mainImage.asset.url;
-                                        }}
-                                    />
+                                    <div className="w-full overflow-hidden rounded-t-2xl mb-2 sm:mb-4 bg-[#f4f8ff]">
+                                        <img
+                                            src={getSanityImageUrl(post.mainImage.asset, 900)}
+                                            alt={post.mainImage.alt || post.alt || post.title}
+                                            className="block w-full h-auto"
+                                            loading="lazy"
+                                            onError={(e) => {
+                                                console.error('Cropped image failed, trying direct URL:', e.target.src);
+                                                e.target.src = post.mainImage.asset.url;
+                                            }}
+                                        />
+                                    </div>
                                 )}
                                 <div className="p-4 sm:p-6 flex flex-col flex-1 w-full">
                                     <h3 className="text-lg sm:text-xl font-bold text-[#005baa] mb-1 sm:mb-2 text-center">{post.title}</h3>

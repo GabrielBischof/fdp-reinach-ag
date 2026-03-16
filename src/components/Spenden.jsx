@@ -12,7 +12,7 @@ const spendenDaten = [
 
 export default function Spenden() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-[#e6f4ff] via-white to-[#cce6ff] py-16 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#e6f4ff] via-white to-[#cce6ff] px-4 pt-28 pb-28 md:pt-36 md:pb-36">
       <div className="max-w-xl w-full bg-white rounded-2xl shadow-2xl p-8 md:p-12 text-center">
         <h1 className="text-4xl md:text-5xl font-extrabold text-[#005baa] mb-6 drop-shadow-lg">Spenden</h1>
         <p className="text-lg md:text-xl text-gray-700 mb-8 font-medium">
